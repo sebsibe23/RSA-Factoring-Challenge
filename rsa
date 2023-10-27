@@ -1,48 +1,50 @@
 #!/usr/bin/env bash
-#is a challenge
-check_factor()
+# RSA Factoring Challenge challenge by sebsibe solomon
+
+evaluate_factor()
 {
 	if [ $# -ne 3 ];
-        then
-                args=("$@")
-                count=0
-                num2=1
-                for a in ${args[*]};
-                do
-                        if [ $count -gt 1 ];
-                        then
-                                num2=$(echo $a*$num2 | bc)
-                        fi
-                        count=$((count + 1))
-                done
-        else
-                num2=$3
-        fi
+	then
+		parameters=("$@")
+		index=0
+		product=1
+		for param in ${parameters[*]};
+		do
+			if [ $index -gt 1 ];
+			then
+				product=$(echo $param*$product | bc)
+			fi
+			index=$((index + 1))
+		done
+	else
+		product=$3
+	fi
 
-        num1=$2
-        num=$(echo "$1" | tr ':' '=')
+	original=$2
+	number=$(echo "$1" | tr ':' '=')
 
-        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
-	        if ((result == 1)); then
-		        numcp=$num1
-		        num1=$num2
-		        num2=$numcp
-                fi
+	comparison=$(echo "if($product > $original) 1 else 0" | bc)
+	if ((comparison == 1)); then
+		temp=$original
+		original=$product
+		product=$temp
+	fi
 
-        echo "$num$num1*$num2"
+	echo "$number$original*$product"
 }
 
 if [ $# -ne 1 ]
 then
-        echo 'Usage: rsa <file>'
-        exit 1
+	echo 'Usage: rsa <file>'
+	exit 1
 else
 
-        while read i
-        do
+	while read line
+	do
 
-                result=$(factor "$i")
-                check_factor $result
+		factor_result=$(factor "$line")
+		evaluate_factor $factor_result
 
-        done < "$1"
+	done < "$1"
 fi
+
